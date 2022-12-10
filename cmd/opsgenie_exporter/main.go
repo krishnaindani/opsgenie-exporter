@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/go-kit/log/level"
 	"github.com/krishnaindani/opsgenie-exporter/exporter"
 	"github.com/prometheus/client_golang/prometheus"
@@ -32,13 +33,19 @@ func main() {
 
 	logger := promlog.New(promlogConfig)
 
-	level.Info(logger).Log("msg", "starting opsgenie_exporter", "version", version.Info())
+	level.Info(logger).Log("msg", "Starting opsgenie_exporter", "version", version.Info())
 	level.Info(logger).Log("msg", "Build context", "context", version.BuildContext())
 
 	prometheus.MustRegister(version.NewCollector("opsgenie_exporter"))
-	prometheus.MustRegister(exporter.New(*apiKey, logger))
+	exp, err := exporter.New(*apiKey, logger)
+	if err != nil {
+		level.Error(logger).Log("msg", "Error creating the exporter", "err", err)
+		os.Exit(1)
+	}
+	prometheus.MustRegister(exp)
 
 	http.Handle(*metricsPath, promhttp.Handler())
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
              <head><title>Opsgenie Exporter</title></head>
@@ -47,6 +54,16 @@ func main() {
              <p><a href='` + *metricsPath + `'>Metrics</a></p>
              </body>
              </html>`))
+	})
+
+	http.HandleFunc("/-/healthy", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, "Healthy")
+	})
+
+	http.HandleFunc("/-/ready", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, "Ready")
 	})
 
 	level.Info(logger).Log("msg", "Listening on address", "address", *listenAddress)

@@ -9,8 +9,8 @@ type Exporter struct {
 	up *prometheus.Desc
 }
 
-func New(apiKey string, logger log.Logger) *Exporter {
-	return &Exporter{}
+func New(apiKey string, logger log.Logger) (*Exporter, error) {
+	return &Exporter{}, nil
 }
 
 func (e *Exporter) Describe(chan<- *prometheus.Desc) {
