@@ -9,6 +9,7 @@ type Exporter struct {
 	up *prometheus.Desc
 }
 
+// New returns initialized exporter
 func New(apiKey string, logger log.Logger) (*Exporter, error) {
 	return &Exporter{}, nil
 }

@@ -10,7 +10,6 @@ import (
 	"github.com/prometheus/common/promlog/flag"
 	"github.com/prometheus/common/version"
 	"github.com/prometheus/exporter-toolkit/web"
-	webflag "github.com/prometheus/exporter-toolkit/web/kingpinflag"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"net/http"
 	"os"
@@ -22,7 +21,6 @@ func main() {
 		listenAddress = kingpin.Flag("web.listen-address", "Address to listen for web and telemetry").Default(":9201").String()
 		metricsPath   = kingpin.Flag("web.metrics-path", "Path to expose metrics on").Default("/metrics").String()
 		apiKey        = kingpin.Flag("api-key", "Opsgenie api key").Default("").String()
-		webConfig     = webflag.AddFlags(kingpin.CommandLine)
 	)
 
 	promlogConfig := &promlog.Config{}
@@ -71,7 +69,7 @@ func main() {
 		Addr: *listenAddress,
 	}
 
-	if err := web.ListenAndServe(server, *webConfig, logger); err != nil {
+	if err := web.ListenAndServe(server, "", logger); err != nil {
 		level.Error(logger).Log("msg", "Error running http server", err)
 		os.Exit(1)
 	}
