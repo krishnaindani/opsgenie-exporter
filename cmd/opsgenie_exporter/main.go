@@ -20,7 +20,7 @@ func main() {
 	var (
 		listenAddress = kingpin.Flag("web.listen-address", "Address to listen for web and telemetry").Default(":9201").String()
 		metricsPath   = kingpin.Flag("web.metrics-path", "Path to expose metrics on").Default("/metrics").String()
-		apiKey        = kingpin.Flag("api-key", "Opsgenie api key").Default("").String()
+		apiKey        = kingpin.Flag("api-key", "Opsgenie api key").Required().String()
 	)
 
 	promlogConfig := &promlog.Config{}
